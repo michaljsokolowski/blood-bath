@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.Experimental.GraphView;
@@ -305,6 +306,8 @@ public class newBaseAIScript : MonoBehaviour
 
     public void EnemyReceiveHit(int damage)
     {
+       
+
 
         EnemyTakeDamage(damage); // You can replace this with your enemy-specific logic
 

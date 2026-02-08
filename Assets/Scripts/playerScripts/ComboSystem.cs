@@ -30,7 +30,7 @@ public class ComboSystem : MonoBehaviour
 
     [Header("Combo Configurations")]
     public List<Combo> combos = new List<Combo>();
-
+    
     // track current combo and reset time
     private List<AttackType> current_combo = new List<AttackType>();
     public float combo_reset_time = 2f;
@@ -40,6 +40,7 @@ public class ComboSystem : MonoBehaviour
     public delegate void ComboAction(DamageType damageType, int totalDamage);
     public event ComboAction OnComboExecuted;
 
+    
     private Dictionary<string, (DamageType damageType, int damage)> comboDictionary;
 
     // zwiększanie dmg z combo

@@ -54,6 +54,7 @@ public class CombatScript : MonoBehaviour
         healthBar = GetComponentInChildren<FloatingHealthBar>();
         blood = FindObjectOfType<BloodCount>();
         healthBar.DoHealthBar(currentHealth, maxHealth);
+        
     }
 
     private void Update()
@@ -182,6 +183,7 @@ public class CombatScript : MonoBehaviour
         }
     }
 
+
     private bool ApplyAttackDamage(int damage, float range)
     {
         Collider[] hitEnemies = Physics.OverlapSphere(transform.position + transform.forward, range, enemyLayers);
@@ -197,7 +199,14 @@ public class CombatScript : MonoBehaviour
                 newBaseAIScript newbaseAIScript = enemy.GetComponent<newBaseAIScript>();
                 if (newbaseAIScript != null)
                 {
+                
                     newbaseAIScript.EnemyReceiveHit(damage);
+                    
+                }
+                ImmortalytyEnemy immortalytyEnemy = enemy.GetComponent<ImmortalytyEnemy>();
+                if(immortalytyEnemy != null)
+                {
+                    immortalytyEnemy.ImmortalTakeDamage();
                 }
             }
             return true;
