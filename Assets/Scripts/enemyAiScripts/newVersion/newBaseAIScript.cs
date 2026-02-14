@@ -307,6 +307,7 @@ public class newBaseAIScript : MonoBehaviour
     {
 
         EnemyTakeDamage(damage); // You can replace this with your enemy-specific logic
+        SpawnsDamagePopups.Instance.DamageDone(damage, transform.position, false);
 
         if (knockbackRoutine != null)
             StopCoroutine(knockbackRoutine);

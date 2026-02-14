@@ -34,7 +34,7 @@ public class CombatScript : MonoBehaviour
     public float blockDamageMultiplier = 0.5f;
     private bool isBlocking = false;
 
-    private FloatingHealthBar healthBar;
+    private PlayerHealthBar healthBar;
 
     [Header("Debug Log Enabler")]
     public bool lightAttackDebug;
@@ -47,11 +47,13 @@ public class CombatScript : MonoBehaviour
     private float lastHeavyAttackTime;
     private BloodCount blood;
 
+    public GameObject damageText;
+
     private void Start()
     {
         comboSystem = GetComponent<ComboSystem>();
         comboSystem.OnComboExecuted += ExecuteComboEffect;
-        healthBar = GetComponentInChildren<FloatingHealthBar>();
+        healthBar = GameObject.FindGameObjectWithTag("Healthbar").GetComponent<PlayerHealthBar>();
         blood = FindObjectOfType<BloodCount>();
         healthBar.DoHealthBar(currentHealth, maxHealth);
     }
@@ -227,12 +229,15 @@ public class CombatScript : MonoBehaviour
         }
 
         currentHealth -= damageAmount;
+        SpawnsDamagePopups.Instance.DamageDone(damageAmount, transform.position, false);
 
+        
         if (currentHealth > 0)
         {
             if (takenDamageDebug)
             {
                 Debug.Log($"Player took {damageAmount} damage. Current health: {currentHealth}");
+                
             }
         }
         else
@@ -252,6 +257,7 @@ public class CombatScript : MonoBehaviour
         {
             currentHealth = maxHealth;
         }
+        SpawnsDamagePopups.Instance.HealingDone(healAmount, transform.position);
     }
 
     public IEnumerator HealOverTime(int healAmount, int times, float interval)
@@ -263,6 +269,7 @@ public class CombatScript : MonoBehaviour
             {
                 currentHealth = maxHealth;
             }
+            SpawnsDamagePopups.Instance.HealingDone(healAmount, transform.position);
             yield return new WaitForSeconds(interval);
         }
     }
