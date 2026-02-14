@@ -198,6 +198,9 @@ public class CombatScript : MonoBehaviour
                 if (newbaseAIScript != null)
                 {
                     newbaseAIScript.EnemyReceiveHit(damage);
+                } else if (enemyScript != null) //added for testing, as old enemies are not using EnemyReceiveHit yet
+                {
+                    enemyScript.EnemyReceiveHit(damage);
                 }
             }
             return true;

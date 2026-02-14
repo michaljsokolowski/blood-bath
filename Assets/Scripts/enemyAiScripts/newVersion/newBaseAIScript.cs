@@ -80,7 +80,7 @@ public class newBaseAIScript : MonoBehaviour
     {
         distanceToPlayer = (player.position - transform.position).sqrMagnitude;
         float newAttackRange = GetAttackRange();
-        Debug.Log("Current attack range value: " + newAttackRange);
+        //Debug.Log("Current attack range value: " + newAttackRange);
 
         if (attackSOs.Length != 0 && attackSOs[attackIndex].isRanged == true)
         {
