@@ -91,7 +91,10 @@ public class EnemyScript : MonoBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, fireRange);
     }
-
+    public void EnemyReceiveHit(int damage)
+    {
+        TakeDamage(damage);
+    }
     public void TakeDamage(int damage)
     {
         currentHealth -= damage;

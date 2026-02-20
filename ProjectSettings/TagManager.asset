@@ -9,6 +9,7 @@ TagManager:
   - heal
   - NPC
   - Healthbar
+  - Wall
   layers:
   - Default
   - TransparentFX
