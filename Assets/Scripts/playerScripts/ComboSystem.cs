@@ -15,6 +15,7 @@ public class ComboSystem : MonoBehaviour
     [Header("Debug log enabler")]
     public bool comboMatchedDebug;
     public bool comboTimeoutDebug;
+    public bool comboMissDebug;
     public bool noticeAttackDebug;
     // damage types
     public enum AttackType
@@ -63,17 +64,30 @@ public class ComboSystem : MonoBehaviour
     }
 
     // register new attack to the current combo chain
-    public void RegisterAttack(AttackType attackType)
+     public void RegisterAttack(AttackType attackType)
     {
-        if (Time.time - last_attack_time > combo_reset_time) {
+        float range = 0f;
+        CombatScript CombatScript = GetComponent<CombatScript>();
+        if (attackType == AttackType.Light) // sprawdzenie typu ataku, żeby wiedzieć jaką odległość sprawdzać przy combo
+        {
+            range = CombatScript.lightAttackRange;
+        }
+        else if (attackType == AttackType.Heavy)
+        {
+            range = CombatScript.heavyAttackRange;}
+
+        if (Time.time - last_attack_time > combo_reset_time) { // reset combo if time exceeded
             if (comboTimeoutDebug) {
                 Debug.Log("combo timeout");
             }
             current_combo.Clear();
+        } else if (!CombatScript.CheckIfEnemyHit(range)) // reset combo if attack missed
+        {
+            if (comboMissDebug) {
+                Debug.Log("attack missed, combo reset");
+            }
+            current_combo.Clear();
         }
-        // add attack to the chain
-        current_combo.Add(attackType);
-        last_attack_time = Time.time;
 
         if (noticeAttackDebug) {
             Debug.Log(

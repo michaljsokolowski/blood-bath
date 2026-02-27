@@ -1,48 +1,62 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class CameraScript : MonoBehaviour
 {
-#region Variables
-        private Vector3 _offset;
-        [SerializeField] private Transform target;
-        [SerializeField] private float smoothTime;
-        private Vector3 _currentVelocity = Vector3.zero;
-        private Bounds _wallBounds;
-        
-    #endregion
-    
-    #region Unity callbacks
-    
-        private void Awake()
-        {
-            _offset = transform.position - target.position;
-            CalculateWallBounds();
-        }
+    [Header("Follow Settings")]
+    public Transform player;
+    public Vector3 offset = new Vector3(0, 0, 0); // Isometric offset
 
-        private void LateUpdate()
-        {
-            Vector3 targetPosition = target.position + _offset;
-            
-            targetPosition.x = Mathf.Clamp(targetPosition.x, _wallBounds.min.x, _wallBounds.max.x);
-            targetPosition.y = Mathf.Clamp(targetPosition.y, _wallBounds.min.y, _wallBounds.max.y);
-            targetPosition.z = Mathf.Clamp(targetPosition.z, _wallBounds.min.z, _wallBounds.max.z);
-            
-            transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref _currentVelocity, smoothTime);
-        }
-        
-    #endregion
-    
-    private void CalculateWallBounds()
+    [Header("Bounds")]
+    public Vector2 minBounds; // Bottom-left corner of playable area
+    public Vector2 maxBounds; // Top-right corner of playable area
+
+    [Header("Camera Settings")]
+    public Camera cam;
+    public float cameraHalfWidth;
+    public float cameraHalfHeight;
+
+    void Start()
     {
-        GameObject wallObject = GameObject.FindWithTag("Wall");
+        if (cam == null)
+            cam = Camera.main;
+    }
 
-        BoxCollider[] colliders = wallObject.GetComponents<BoxCollider>();
-        _wallBounds = colliders[0].bounds;
-        for (int i = 1; i < colliders.Length; i++)
-        {
-            _wallBounds.Encapsulate(colliders[i].bounds);
-        }
+    void LateUpdate()
+    {
+        if (player == null) return;
+
+        // Calculate desired position (player + offset)
+        Vector3 desiredPosition = player.position + offset;
+
+        // Clamp camera position to stay within bounds
+        float clampedX = Mathf.Clamp(
+            desiredPosition.x,
+            minBounds.x + cameraHalfWidth,
+            maxBounds.x - cameraHalfWidth
+        );
+
+        float clampedZ = Mathf.Clamp(
+            desiredPosition.z,
+            minBounds.y + cameraHalfHeight,
+            maxBounds.y - cameraHalfHeight
+        );
+
+        // Apply clamped position (keep original Y for height)
+        transform.position = new Vector3(clampedX, desiredPosition.y, clampedZ);
+    }
+
+    // Visualize bounds in editor
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.yellow;
+        Vector3 bottomLeft = new Vector3(minBounds.x, 0, minBounds.y);
+        Vector3 bottomRight = new Vector3(maxBounds.x, 0, minBounds.y);
+        Vector3 topLeft = new Vector3(minBounds.x, 0, maxBounds.y);
+        Vector3 topRight = new Vector3(maxBounds.x, 0, maxBounds.y);
+
+        Gizmos.DrawLine(bottomLeft, bottomRight);
+        Gizmos.DrawLine(bottomRight, topRight);
+        Gizmos.DrawLine(topRight, topLeft);
+        Gizmos.DrawLine(topLeft, bottomLeft);
     }
 }

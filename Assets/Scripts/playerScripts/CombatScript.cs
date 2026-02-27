@@ -184,6 +184,12 @@ public class CombatScript : MonoBehaviour
         }
     }
 
+public bool CheckIfEnemyHit(float range)
+    {
+        Collider[] hitEnemies = Physics.OverlapSphere(transform.position + transform.forward, range, enemyLayers);
+        return hitEnemies.Length > 0;
+    }
+
     private bool ApplyAttackDamage(int damage, float range)
     {
         Collider[] hitEnemies = Physics.OverlapSphere(transform.position + transform.forward, range, enemyLayers);
@@ -194,12 +200,17 @@ public class CombatScript : MonoBehaviour
                 EnemyScript enemyScript = enemy.GetComponent<EnemyScript>();
                 if (enemyScript != null)
                 {
-                    //enemyScript.TakeDamage(damage);
+                    enemyScript.TakeDamage(damage);
                 }                                                                   //added to check if new enemy AI works well with combat script
                 newBaseAIScript newbaseAIScript = enemy.GetComponent<newBaseAIScript>();
                 if (newbaseAIScript != null)
                 {
                     newbaseAIScript.EnemyReceiveHit(damage);
+                }
+                DummyScript dummyScript = enemy.GetComponent<DummyScript>();
+                if (dummyScript != null)
+                {
+                    dummyScript.EnemyReceiveHit(damage);
                 }
             }
             return true;
