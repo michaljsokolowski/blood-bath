@@ -55,12 +55,12 @@ public class CombatScript : MonoBehaviour
         comboSystem.OnComboExecuted += ExecuteComboEffect;
         healthBar = GameObject.FindGameObjectWithTag("Healthbar").GetComponent<PlayerHealthBar>();
         blood = FindObjectOfType<BloodCount>();
-        healthBar.DoHealthBar(currentHealth, maxHealth);
+        healthBar.SetHealth(currentHealth);
     }
 
     private void Update()
     {
-        healthBar.DoHealthBar(currentHealth, maxHealth);
+        healthBar.SetHealth(currentHealth);
 
         if (isParrying && Time.time >= parryEndTime)
         {
