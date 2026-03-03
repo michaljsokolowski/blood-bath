@@ -1,3 +1,4 @@
+// EnemyScript.cs
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -23,14 +24,63 @@ public class EnemyScript : MonoBehaviour
     public FloatingHealthBar healthBar;
     private bool isDead = false;
 
+    [Header("Bleed Status Effect")]
+    [Tooltip("Damage dealt per bleed tick.")]
+    public int bleedDamagePerTick = 3;
+
+    [Tooltip("How many seconds between each bleed tick.")]
+    public float bleedTickInterval = 0.5f;
+
+    [Tooltip("Total duration of the bleed effect in seconds.")]
+    public float bleedDuration = 3f;
+
+    private Coroutine activeBleedCoroutine;   // tracked so we can refresh it
+
     void Start()
     {
         currentHealth = maxHealth;
-        healthBar = GetComponentInChildren<FloatingHealthBar>();
-        player = GameObject.FindGameObjectWithTag("Player").transform;
-        blood = FindObjectOfType<SpawningBlood>();
-        orbs = FindObjectOfType<orbSpawn>();
+        healthBar     = GetComponentInChildren<FloatingHealthBar>();
+        player        = GameObject.FindGameObjectWithTag("Player").transform;
+        blood         = FindObjectOfType<SpawningBlood>();
+        orbs          = FindObjectOfType<orbSpawn>();
         healthBar.DoHealthBar(maxHealth, maxHealth);
+
+        GameEvents.OnComboExecuted += HandleComboExecuted;
+    }
+
+    void OnDestroy()
+    {
+        GameEvents.OnComboExecuted -= HandleComboExecuted;
+    }
+
+    private void HandleComboExecuted(ComboSystem.DamageType damageType,
+                                     int totalDamage,
+                                     ComboSystem.StatusEffect statusEffect)
+    {
+        if (statusEffect != ComboSystem.StatusEffect.Bleed)
+            return;
+        if (activeBleedCoroutine != null)
+            StopCoroutine(activeBleedCoroutine);
+
+        activeBleedCoroutine = StartCoroutine(BleedRoutine());
+    }
+
+    private IEnumerator BleedRoutine()
+    {
+        float elapsed = 0f;
+
+        while (elapsed < bleedDuration)
+        {
+            yield return new WaitForSeconds(bleedTickInterval);
+            elapsed += bleedTickInterval;
+
+            if (isDead) yield break;          // enemy died mid-bleed
+
+            TakeDamage(bleedDamagePerTick);
+            Debug.Log($"{gameObject.name} is bleeding - took {bleedDamagePerTick} bleed damage.");
+        }
+
+        activeBleedCoroutine = null;
     }
 
     void Update()
@@ -43,15 +93,11 @@ public class EnemyScript : MonoBehaviour
         }
     }
 
-    // checks if the player is within firing range
     bool IsPlayerInRange()
     {
-        Vector3 enemyPosition =
-          new Vector3(transform.position.x, 0, transform.position.z);
-        Vector3 playerPosition = new Vector3(player.position.x, 0, player.position.z);
-        float distance = Vector3.Distance(enemyPosition, playerPosition);
-
-        return distance <= fireRange;
+        Vector3 enemyPosition  = new Vector3(transform.position.x, 0, transform.position.z);
+        Vector3 playerPosition = new Vector3(player.position.x,    0, player.position.z);
+        return Vector3.Distance(enemyPosition, playerPosition) <= fireRange;
     }
 
     bool CanSeePlayer()
@@ -59,31 +105,27 @@ public class EnemyScript : MonoBehaviour
         Vector3 directionToPlayer = (player.position - firePoint.position).normalized;
         RaycastHit hit;
 
-        if (Physics.Raycast(firePoint.position, directionToPlayer, out hit, fireRange)) {
-            if (hit.collider.gameObject.tag == "Obstacle") {
+        if (Physics.Raycast(firePoint.position, directionToPlayer, out hit, fireRange))
+            if (hit.collider.gameObject.tag == "Obstacle")
                 return false;
-            }
-        }
 
         return true;
     }
 
     void Shoot()
     {
-        if (player != null) {
-            Vector3 direction = (player.position - firePoint.position).normalized;
-            direction.y = 0;
+        if (player == null) return;
 
-            GameObject bullet = Instantiate(bulletPrefab, firePoint.position, Quaternion.identity);
-            BulletScript bulletScript = bullet.GetComponent<BulletScript>();
-            if (bulletScript != null)
-            {
-                bulletScript.SetAttacker(this.transform); 
-            }
-            bullet.GetComponent<Rigidbody>().velocity = direction * bulletSpeed;
+        Vector3 direction = (player.position - firePoint.position).normalized;
+        direction.y = 0;
 
-            Destroy(bullet, bulletLifetime);
-        }
+        GameObject bullet         = Instantiate(bulletPrefab, firePoint.position, Quaternion.identity);
+        BulletScript bulletScript = bullet.GetComponent<BulletScript>();
+        if (bulletScript != null)
+            bulletScript.SetAttacker(this.transform);
+
+        bullet.GetComponent<Rigidbody>().velocity = direction * bulletSpeed;
+        Destroy(bullet, bulletLifetime);
     }
 
     void OnDrawGizmosSelected()
@@ -91,37 +133,30 @@ public class EnemyScript : MonoBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, fireRange);
     }
-    public void EnemyReceiveHit(int damage)
-    {
-        TakeDamage(damage);
-    
-    }
+
+    public void EnemyReceiveHit(int damage) => TakeDamage(damage);
+
     public void TakeDamage(int damage)
     {
         currentHealth -= damage;
-        
-        // Debug.Log("enemy took " + damage + " damage. Current health: " +
-        // currentHealth);
         healthBar.DoHealthBar(currentHealth, maxHealth);
 
-        if (currentHealth <= 0) {
+        if (currentHealth <= 0)
             Die();
-        }
     }
 
     void Die()
     {
-        if (isDead)
-            return;
+        if (isDead) return;
         isDead = true;
-        Vector3 enemyPosition =
-          new Vector3(transform.position.x, 0, transform.position.z);
+
+        Vector3 enemyPosition = new Vector3(transform.position.x, 0, transform.position.z);
         if (blood != null && orbs != null) {
             blood.SpawnBloodAt(enemyPosition);
             orbs.SpawnOrbAt(enemyPosition);
         }
+
         Debug.Log("enemy died!");
         Destroy(gameObject);
-        Debug.Log("Die() called for " + gameObject.name);
     }
 }

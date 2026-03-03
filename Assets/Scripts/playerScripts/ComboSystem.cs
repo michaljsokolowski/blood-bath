@@ -121,6 +121,8 @@ public class ComboSystem : MonoBehaviour
                 }
                 OnComboExecuted?.Invoke(comboData.damageType,
                                         (int)(comboData.damage * blood.DMGMulti), combos.Find(c => c.comboPattern == comboKey).statusEffect);
+                GameEvents.RaiseComboExecuted(comboData.damageType, (int)(comboData.damage * blood.DMGMulti),
+                               combos.Find(c => c.comboPattern == comboKey).statusEffect);
             } else {
                 Debug.Log($"no combo found: {comboKey}");
             }
@@ -129,6 +131,4 @@ public class ComboSystem : MonoBehaviour
             current_combo.Clear();
         }
     }
-
-
 }
