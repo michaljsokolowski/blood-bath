@@ -1,4 +1,3 @@
-// EnemyScript.cs
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -36,6 +35,17 @@ public class EnemyScript : MonoBehaviour
 
     private Coroutine activeBleedCoroutine;   // tracked so we can refresh it
 
+    [Header("Stagger Status Effect")]
+    [SerializeField] private float staggerDuration = 1.5f;
+    private Coroutine activeStaggerCoroutine;
+
+    [Header("Pull Status Effect")]
+    [SerializeField] private float pullDuration = 1f;
+    [SerializeField] private float pullSpeed = 10f;
+    private Coroutine activePullCoroutine;
+
+    private bool isStaggered = false;
+
     void Start()
     {
         currentHealth = maxHealth;
@@ -57,12 +67,24 @@ public class EnemyScript : MonoBehaviour
                                      int totalDamage,
                                      ComboSystem.StatusEffect statusEffect)
     {
-        if (statusEffect != ComboSystem.StatusEffect.Bleed)
-            return;
-        if (activeBleedCoroutine != null)
-            StopCoroutine(activeBleedCoroutine);
-
-        activeBleedCoroutine = StartCoroutine(BleedRoutine());
+        if (statusEffect == ComboSystem.StatusEffect.Bleed)
+        {
+            if (activeBleedCoroutine != null)
+                StopCoroutine(activeBleedCoroutine);
+            activeBleedCoroutine = StartCoroutine(BleedRoutine());
+        }
+        else if (statusEffect == ComboSystem.StatusEffect.Stagger)
+        {
+            if (activeStaggerCoroutine != null)
+                StopCoroutine(activeStaggerCoroutine);
+            activeStaggerCoroutine = StartCoroutine(StaggerRoutine());
+        }
+        else if (statusEffect == ComboSystem.StatusEffect.Pull)
+        {
+            if (activePullCoroutine != null)
+                StopCoroutine(activePullCoroutine);
+            activePullCoroutine = StartCoroutine(PullRoutine());
+        }
     }
 
     private IEnumerator BleedRoutine()
@@ -82,9 +104,46 @@ public class EnemyScript : MonoBehaviour
 
         activeBleedCoroutine = null;
     }
+    private IEnumerator StaggerRoutine()
+    {
+        isStaggered = true;
+        float elapsed = 0f;
+
+        while (elapsed < staggerDuration)
+        {
+            yield return null;
+            elapsed += Time.deltaTime;
+
+            if (isDead) yield break;
+        }
+
+        isStaggered = false;
+        activeStaggerCoroutine = null;
+    }
+
+    private IEnumerator PullRoutine()
+    {
+        float elapsed = 0f;
+
+        while (elapsed < pullDuration)
+        {
+            if (isDead) yield break;
+
+            Vector3 direction = (player.position - transform.position).normalized;
+            direction.y = 0f;
+            transform.position += direction * pullSpeed * Time.deltaTime;
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        activePullCoroutine = null;
+    }
 
     void Update()
     {
+        if (isStaggered) return;
+
         if (player != null && IsPlayerInRange() && CanSeePlayer()) {
             if (Time.time >= nextShootTime) {
                 Shoot();

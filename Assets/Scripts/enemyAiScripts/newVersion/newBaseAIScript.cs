@@ -12,6 +12,27 @@ public class newBaseAIScript : MonoBehaviour
     [SerializeField] private float knockbackDuration = 0.15f; 
     private Coroutine knockbackRoutine;
 
+    [Header("Bleed Status Effect")]
+    [Tooltip("Damage dealt per bleed tick.")]
+    [SerializeField] private int bleedDamagePerTick = 3;
+
+    [Tooltip("How many seconds between each bleed tick.")]
+    [SerializeField] private float bleedTickInterval = 0.5f;
+
+    [Tooltip("Total duration of the bleed effect in seconds.")]
+    [SerializeField] private float bleedDuration = 3f;
+
+    private Coroutine activeBleedCoroutine;
+
+    [Header("Stagger Status Effect")]
+    [SerializeField] private float staggerDuration = 1.5f;
+    private Coroutine activeStaggerCoroutine;
+
+    [Header("Pull Status Effect")]
+    [SerializeField] private float pullDuration = 1f;
+    [SerializeField] private float pullSpeed = 10f;
+    private Coroutine activePullCoroutine;
+
 
     [Header("Moved form RangedEnemyAIScript")]
     public float repositionRadius = 5f;
@@ -50,7 +71,7 @@ public class newBaseAIScript : MonoBehaviour
     protected float distanceToPlayer;
 
     [Header("Moved from EnemyScript.cs")]
-    [SerializeField] protected int maxHealth = 50;
+    [SerializeField] protected int maxHealth = 500;
     protected int currentHealth;
     [SerializeField] protected float bulletSpeed = 10f;
     [SerializeField] protected float bulletLifetime = 2f;
@@ -74,6 +95,93 @@ public class newBaseAIScript : MonoBehaviour
         orbs = FindObjectOfType<orbSpawn>();
         healthBar.DoHealthBar(currentHealth, maxHealth);
         agent = GetComponent<NavMeshAgent>();
+
+        GameEvents.OnComboExecuted += HandleComboExecuted;
+    }
+
+    protected virtual void OnDestroy()
+    {
+        GameEvents.OnComboExecuted -= HandleComboExecuted;
+    }
+
+    private void HandleComboExecuted(ComboSystem.DamageType damageType,
+                                     int totalDamage,
+                                     ComboSystem.StatusEffect statusEffect)
+    {
+        if (statusEffect == ComboSystem.StatusEffect.Bleed)
+        {
+            if (activeBleedCoroutine != null)
+                StopCoroutine(activeBleedCoroutine);
+            activeBleedCoroutine = StartCoroutine(BleedRoutine());
+        }
+        else if (statusEffect == ComboSystem.StatusEffect.Stagger)
+        {
+            if (activeStaggerCoroutine != null)
+                StopCoroutine(activeStaggerCoroutine);
+            activeStaggerCoroutine = StartCoroutine(StaggerRoutine());
+        }
+        else if (statusEffect == ComboSystem.StatusEffect.Pull)
+        {
+            if (activePullCoroutine != null)
+                StopCoroutine(activePullCoroutine);
+            activePullCoroutine = StartCoroutine(PullRoutine());
+        }
+    }
+
+    private IEnumerator BleedRoutine()
+    {
+        float elapsed = 0f;
+
+        while (elapsed < bleedDuration)
+        {
+            yield return new WaitForSeconds(bleedTickInterval);
+            elapsed += bleedTickInterval;
+
+            if (isDead) yield break;
+
+            EnemyTakeDamage(bleedDamagePerTick);
+            Debug.Log($"{gameObject.name} is bleeding - took {bleedDamagePerTick} bleed damage.");
+        }
+
+        activeBleedCoroutine = null;
+    }
+
+    private IEnumerator StaggerRoutine()
+    {
+        agent.isStopped = true;
+        float elapsed = 0f;
+
+        while (elapsed < staggerDuration)
+        {
+            yield return null;
+            elapsed += Time.deltaTime;
+
+            if (isDead) yield break;
+        }
+
+        agent.isStopped = false;
+        activeStaggerCoroutine = null;
+    }
+
+    private IEnumerator PullRoutine()
+    {
+        float elapsed = 0f;
+        agent.isStopped = true;
+
+        while (elapsed < pullDuration)
+        {
+            if (isDead) yield break;
+
+            Vector3 direction = (player.position - transform.position).normalized;
+            direction.y = 0f;
+            transform.position += direction * pullSpeed * Time.deltaTime;
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        agent.isStopped = false;
+        activePullCoroutine = null;
     }
 
     protected virtual void Update()

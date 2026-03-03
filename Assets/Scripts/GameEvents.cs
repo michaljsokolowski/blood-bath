@@ -1,4 +1,3 @@
-
 public static class GameEvents
 {
     public static event System.Action<ComboSystem.DamageType, int, ComboSystem.StatusEffect> OnComboExecuted;

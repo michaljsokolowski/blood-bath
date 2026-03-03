@@ -3517,6 +3517,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2125180669898700007, guid: beaf6545fd5e54b488ce604d82217fda, type: 3}
+      propertyPath: maxHealth
+      value: 500
+      objectReference: {fileID: 0}
+    - target: {fileID: 2125180669898700007, guid: beaf6545fd5e54b488ce604d82217fda, type: 3}
       propertyPath: chaseOffset
       value: 6
       objectReference: {fileID: 0}
@@ -4754,6 +4758,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 1000
   healthBar: {fileID: 1146696951}
+  bleedDamagePerTick: 3
+  bleedTickInterval: 0.5
+  bleedDuration: 3
 --- !u!136 &1872813662
 CapsuleCollider:
   m_ObjectHideFlags: 0

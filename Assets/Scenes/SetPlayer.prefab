@@ -196,6 +196,10 @@ PrefabInstance:
       propertyPath: camera_transform
       value: 
       objectReference: {fileID: 8007125734849485055}
+    - target: {fileID: 8945407518145070634, guid: ffc6ea308eba6d05c86cda45ae04abe1, type: 3}
+      propertyPath: noticeAttackDebug
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
