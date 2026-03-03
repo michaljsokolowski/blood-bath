@@ -8,12 +8,12 @@ public class CombatScript : MonoBehaviour
 
     [Header("Combat Settings")]
     [Header("Light Attack")]
-    public int lightAttackDamage = 5;
+    public float lightAttackDamage = 4.5f;
     public float lightAttackRange = 2f;
     public float lightAttackCooldown = 0.5f;
 
     [Header("Heavy Attack")]
-    public int heavyAttackDamage = 10;
+    public float heavyAttackDamage = 7f;
     public float heavyAttackRange = 3f;
     public float heavyAttackCooldown = 1.0f;
 
@@ -153,11 +153,11 @@ public class CombatScript : MonoBehaviour
         return isParrying;
     }
 
-    private void ExecuteComboEffect(ComboSystem.DamageType damageType, int totalDamage)
+    private void ExecuteComboEffect(ComboSystem.DamageType damageType, int totalDamage, ComboSystem.StatusEffect statusEffect)
     {
         if (comboExecutedDebug)
         {
-            Debug.Log($"Combo executed: {damageType}, total damage: {totalDamage}");
+            Debug.Log($"Combo executed: {damageType}, total damage: {totalDamage}, status effect: {statusEffect}");
         }
         ApplyAttackDamage(totalDamage, damageType == ComboSystem.DamageType.Slash ? lightAttackRange : heavyAttackRange);
     }

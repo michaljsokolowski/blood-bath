@@ -8,6 +8,7 @@ public class Combo
     public string comboPattern;
     public ComboSystem.DamageType damageType;
     public int damage;
+    public ComboSystem.StatusEffect statusEffect;
 }
 
 public class ComboSystem : MonoBehaviour
@@ -28,6 +29,12 @@ public class ComboSystem : MonoBehaviour
         Blunt,
         Slash
     }
+    public enum StatusEffect
+    {
+        Bleed,
+        Stagger,
+        Pull
+    }
 
     [Header("Combo Configurations")]
     public List<Combo> combos = new List<Combo>();
@@ -38,7 +45,7 @@ public class ComboSystem : MonoBehaviour
     private float last_attack_time;
 
     // trigger event when combo is executed
-    public delegate void ComboAction(DamageType damageType, int totalDamage);
+    public delegate void ComboAction(DamageType damageType, int totalDamage, StatusEffect statusEffect);
     public event ComboAction OnComboExecuted;
 
     private Dictionary<string, (DamageType damageType, int damage)> comboDictionary;
@@ -88,6 +95,9 @@ public class ComboSystem : MonoBehaviour
             }
             current_combo.Clear();
         }
+        // add attack to the chain
+        current_combo.Add(attackType);
+        last_attack_time = Time.time;
 
         if (noticeAttackDebug) {
             Debug.Log(
@@ -110,7 +120,7 @@ public class ComboSystem : MonoBehaviour
                       $"combo matched: {comboKey}, DamageType: {comboData.damageType}, Damage: {(int)(comboData.damage * blood.DMGMulti)}");
                 }
                 OnComboExecuted?.Invoke(comboData.damageType,
-                                        (int)(comboData.damage * blood.DMGMulti));
+                                        (int)(comboData.damage * blood.DMGMulti), combos.Find(c => c.comboPattern == comboKey).statusEffect);
             } else {
                 Debug.Log($"no combo found: {comboKey}");
             }
@@ -119,4 +129,6 @@ public class ComboSystem : MonoBehaviour
             current_combo.Clear();
         }
     }
+
+
 }

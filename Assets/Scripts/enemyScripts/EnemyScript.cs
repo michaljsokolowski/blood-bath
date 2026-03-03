@@ -94,10 +94,12 @@ public class EnemyScript : MonoBehaviour
     public void EnemyReceiveHit(int damage)
     {
         TakeDamage(damage);
+    
     }
     public void TakeDamage(int damage)
     {
         currentHealth -= damage;
+        
         // Debug.Log("enemy took " + damage + " damage. Current health: " +
         // currentHealth);
         healthBar.DoHealthBar(currentHealth, maxHealth);
