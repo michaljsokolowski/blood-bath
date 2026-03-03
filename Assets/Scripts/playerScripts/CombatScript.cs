@@ -70,7 +70,7 @@ public class CombatScript : MonoBehaviour
 
     public void ProcessPlayerInput()
     {
-        if (Input.GetButtonDown("LightAttack") || Input.GetKeyDown(KeyCode.Q))
+        if (Input.GetButtonDown("LightAttack") || Input.GetKeyDown(KeyCode.Mouse0))
         {
             if (Time.time >= lastLightAttackTime + lightAttackCooldown)
             {
@@ -78,7 +78,7 @@ public class CombatScript : MonoBehaviour
                 lastLightAttackTime = Time.time;
             }
         }
-        else if (Input.GetButtonDown("HeavyAttack") || Input.GetKeyDown(KeyCode.E))
+        else if (Input.GetButtonDown("HeavyAttack") || Input.GetKeyDown(KeyCode.Mouse1))
         {
             if (Time.time >= lastHeavyAttackTime + heavyAttackCooldown)
             {
@@ -87,16 +87,16 @@ public class CombatScript : MonoBehaviour
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.T))
+        if (Input.GetKeyDown(KeyCode.Q))
         {
             StartParry();
         }
-        else if (Input.GetKeyUp(KeyCode.T))
+        else if (Input.GetKeyUp(KeyCode.Q))
         {
             StopParry();
         }
 
-        if (Input.GetKey(KeyCode.B))
+        if (Input.GetKey(KeyCode.Q))
         {
             if (!isBlocking)
             {
