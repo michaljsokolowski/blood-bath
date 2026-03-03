@@ -153,13 +153,30 @@ public class CombatScript : MonoBehaviour
         return isParrying;
     }
 
-    private void ExecuteComboEffect(ComboSystem.DamageType damageType, int totalDamage, ComboSystem.StatusEffect statusEffect)
+    private void ExecuteComboEffect(ComboSystem.DamageType damageType, int totalDamage, ComboSystem.StatusEffect statusEffect, GameObject? target)
     {
         if (comboExecutedDebug)
         {
-            Debug.Log($"Combo executed: {damageType}, total damage: {totalDamage}, status effect: {statusEffect}");
+            Debug.Log($"Combo executed: {damageType}, total damage: {totalDamage}, status effect: {statusEffect}, target: {target?.name ?? "None"}");
         }
-        ApplyAttackDamage(totalDamage, damageType == ComboSystem.DamageType.Slash ? lightAttackRange : heavyAttackRange);
+        float range = damageType == ComboSystem.DamageType.Slash ? lightAttackRange : heavyAttackRange;
+        Collider[] hitEnemies = Physics.OverlapSphere(transform.position + transform.forward, range, enemyLayers);
+        foreach (Collider enemy in hitEnemies)
+        {
+            EnemyScript enemyScript = enemy.GetComponent<EnemyScript>();
+            if (enemyScript != null)
+                enemyScript.TakeDamage(totalDamage);
+
+            newBaseAIScript newbaseAIScript = enemy.GetComponent<newBaseAIScript>();
+            if (newbaseAIScript != null)
+                newbaseAIScript.EnemyReceiveHit(totalDamage);
+
+            DummyScript dummyScript = enemy.GetComponent<DummyScript>();
+            if (dummyScript != null)
+                dummyScript.EnemyReceiveHit(totalDamage);
+
+            GameEvents.RaiseComboExecuted(damageType, totalDamage, statusEffect, enemy.gameObject);
+        }
     }
 
     private void ExecuteLightAttack()

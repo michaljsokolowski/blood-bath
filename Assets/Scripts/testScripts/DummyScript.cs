@@ -37,10 +37,9 @@ public class DummyScript : MonoBehaviour
 
     private void HandleComboExecuted(ComboSystem.DamageType damageType,
                                      int totalDamage,
-                                     ComboSystem.StatusEffect statusEffect)
+                                     ComboSystem.StatusEffect statusEffect, GameObject target)
     {
-        EnemyTakeDamage(totalDamage);
-        SpawnsDamagePopups.Instance.DamageDone(totalDamage, transform.position, false);
+        if (target != this.gameObject) return;
 
         if (statusEffect == ComboSystem.StatusEffect.Bleed)
         {

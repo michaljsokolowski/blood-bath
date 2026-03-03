@@ -25,7 +25,7 @@ public class newBaseAIScript : MonoBehaviour
     private Coroutine activeBleedCoroutine;
 
     [Header("Stagger Status Effect")]
-    [SerializeField] private float staggerDuration = 1.5f;
+    [SerializeField] private float staggerDuration = 5f;
     private Coroutine activeStaggerCoroutine;
 
     [Header("Pull Status Effect")]
@@ -106,8 +106,10 @@ public class newBaseAIScript : MonoBehaviour
 
     private void HandleComboExecuted(ComboSystem.DamageType damageType,
                                      int totalDamage,
-                                     ComboSystem.StatusEffect statusEffect)
+                                     ComboSystem.StatusEffect statusEffect, GameObject target)
     {
+        if (target != this.gameObject) return;
+
         if (statusEffect == ComboSystem.StatusEffect.Bleed)
         {
             if (activeBleedCoroutine != null)
@@ -159,6 +161,8 @@ public class newBaseAIScript : MonoBehaviour
             if (isDead) yield break;
         }
 
+        Debug.Log("enemy got staggered for " + staggerDuration + " seconds");
+
         agent.isStopped = false;
         activeStaggerCoroutine = null;
     }
@@ -179,6 +183,8 @@ public class newBaseAIScript : MonoBehaviour
             elapsed += Time.deltaTime;
             yield return null;
         }
+
+        Debug.Log("enemy got pulled towards the player");
 
         agent.isStopped = false;
         activePullCoroutine = null;

@@ -45,7 +45,7 @@ public class ComboSystem : MonoBehaviour
     private float last_attack_time;
 
     // trigger event when combo is executed
-    public delegate void ComboAction(DamageType damageType, int totalDamage, StatusEffect statusEffect);
+    public delegate void ComboAction(DamageType damageType, int totalDamage, StatusEffect statusEffect, GameObject? target);
     public event ComboAction OnComboExecuted;
 
     private Dictionary<string, (DamageType damageType, int damage)> comboDictionary;
@@ -120,9 +120,7 @@ public class ComboSystem : MonoBehaviour
                       $"combo matched: {comboKey}, DamageType: {comboData.damageType}, Damage: {(int)(comboData.damage * blood.DMGMulti)}");
                 }
                 OnComboExecuted?.Invoke(comboData.damageType,
-                                        (int)(comboData.damage * blood.DMGMulti), combos.Find(c => c.comboPattern == comboKey).statusEffect);
-                GameEvents.RaiseComboExecuted(comboData.damageType, (int)(comboData.damage * blood.DMGMulti),
-                               combos.Find(c => c.comboPattern == comboKey).statusEffect);
+                                        (int)(comboData.damage * blood.DMGMulti), combos.Find(c => c.comboPattern == comboKey).statusEffect, null);
             } else {
                 Debug.Log($"no combo found: {comboKey}");
             }
