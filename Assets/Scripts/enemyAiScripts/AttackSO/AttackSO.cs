@@ -22,15 +22,13 @@ public abstract class AttackSO : ScriptableObject
                 if (playerCombat.IsParrying())
                 {
                     Debug.Log("Hit parried! No damage taken.");
+                    playerCombat.ApplyParryCounter(attacker);
                     return;
                 }
-                else
+
+                if (hit.TryGetComponent<PlayerImmunityAndKnockbackScript>(out var immunityScript))
                 {
-                    if (hit.TryGetComponent<PlayerImmunityAndKnockbackScript>(out var immunityScript))
-                    {
-                        immunityScript.ReceiveHit(damage, attacker);
-                    }
-                    //playerCombat.TakeDamage(damage, attacker);
+                    immunityScript.ReceiveHit(damage, attacker);
                 }
             }
         }
