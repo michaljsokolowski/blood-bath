@@ -4,5 +4,11 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scripts/Trap/TestScene.unity
+    guid: b49307826f901be4d87b098f6dd5ba82
+  - enabled: 1
+    path: Assets/Scripts/Enviro/ScenePassTest.unity
+    guid: fa6f7ab0b6b3aa64080b4ccb761d5a41
   m_configObjects: {}
