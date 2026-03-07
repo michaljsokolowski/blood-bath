@@ -19,7 +19,7 @@ public class PlayerEvade : MonoBehaviour
 
     private void check_for_evade_input()
     {
-        if ((Input.GetButtonDown("EvadeButton") || Input.GetKeyDown(KeyCode.Space)) && Time.time >= next_evade_allowed_time)
+        if ((Input.GetButtonDown("EvadeButton") || Input.GetKeyDown(KeyCode.LeftShift)) && Time.time >= next_evade_allowed_time)
         {
             if (!is_evading_in_progress)
             {

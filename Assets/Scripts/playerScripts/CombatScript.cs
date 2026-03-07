@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class CombatScript : MonoBehaviour
 {
@@ -8,12 +9,12 @@ public class CombatScript : MonoBehaviour
 
     [Header("Combat Settings")]
     [Header("Light Attack")]
-    public int lightAttackDamage = 5;
+    public float lightAttackDamage = 4.5f;
     public float lightAttackRange = 2f;
     public float lightAttackCooldown = 0.5f;
 
     [Header("Heavy Attack")]
-    public int heavyAttackDamage = 10;
+    public float heavyAttackDamage = 7f;
     public float heavyAttackRange = 3f;
     public float heavyAttackCooldown = 1.0f;
 
@@ -26,15 +27,25 @@ public class CombatScript : MonoBehaviour
     private bool hasDied = false;
 
     [Header("Parry Settings")]
-    private bool isParrying = false;
-    public float parryDuration = 0.5f;
+    public float parryDuration = 0.3f;
     private float parryEndTime;
     public float parryRange = 1.5f;
 
-    public float blockDamageMultiplier = 0.5f;
-    private bool isBlocking = false;
+    [Header("Parry Counter-Attack")]
+    [Tooltip("Damage dealt to the enemy when a parry succeeds.")]
+    public int parryCounterDamage = 15;
+    [Tooltip("Duration the enemy is staggered after being parried.")]
+    public float parryStaggerDuration = 1.5f;
 
-    private FloatingHealthBar healthBar;
+    [Header("Block Settings")]
+    public float blockDamageMultiplier = 0.3f;
+    [Tooltip("Maximum angle (degrees) from forward for a block to be effective.")]
+    public float blockAngle = 120f;
+
+    private enum DefensiveState { None, Parrying, Blocking }
+    private DefensiveState defensiveState = DefensiveState.None;
+
+    private PlayerHealthBar healthBar;
 
     [Header("Debug Log Enabler")]
     public bool lightAttackDebug;
@@ -47,118 +58,157 @@ public class CombatScript : MonoBehaviour
     private float lastHeavyAttackTime;
     private BloodCount blood;
 
+    public GameObject damageText;
+
     private void Start()
     {
         comboSystem = GetComponent<ComboSystem>();
         comboSystem.OnComboExecuted += ExecuteComboEffect;
-        healthBar = GetComponentInChildren<FloatingHealthBar>();
+        healthBar = GameObject.FindGameObjectWithTag("Healthbar").GetComponent<PlayerHealthBar>();
         blood = FindObjectOfType<BloodCount>();
-        healthBar.DoHealthBar(currentHealth, maxHealth);
-        
+        healthBar.SetHealth(currentHealth);
     }
 
     private void Update()
     {
-        healthBar.DoHealthBar(currentHealth, maxHealth);
+        healthBar.SetHealth(currentHealth);
 
-        if (isParrying && Time.time >= parryEndTime)
+        if (defensiveState == DefensiveState.Parrying && Time.time >= parryEndTime)
         {
-            StopParry();
+            if (Input.GetKey(KeyCode.Q))
+            {
+                TransitionToBlock();
+            }
+            else
+            {
+                StopDefending();
+            }
         }
     }
 
     public void ProcessPlayerInput()
     {
-        if (Input.GetButtonDown("LightAttack") || Input.GetKeyDown(KeyCode.Q))
+        if (defensiveState == DefensiveState.None)
         {
-            if (Time.time >= lastLightAttackTime + lightAttackCooldown)
+            if (Input.GetButtonDown("LightAttack") || Input.GetKeyDown(KeyCode.Mouse0))
             {
-                ExecuteLightAttack();
-                lastLightAttackTime = Time.time;
+                if (Time.time >= lastLightAttackTime + lightAttackCooldown)
+                {
+                    ExecuteLightAttack();
+                    lastLightAttackTime = Time.time;
+                }
             }
-        }
-        else if (Input.GetButtonDown("HeavyAttack") || Input.GetKeyDown(KeyCode.E))
-        {
-            if (Time.time >= lastHeavyAttackTime + heavyAttackCooldown)
+            else if (Input.GetButtonDown("HeavyAttack") || Input.GetKeyDown(KeyCode.Mouse1))
             {
-                ExecuteHeavyAttack();
-                lastHeavyAttackTime = Time.time;
+                if (Time.time >= lastHeavyAttackTime + heavyAttackCooldown)
+                {
+                    ExecuteHeavyAttack();
+                    lastHeavyAttackTime = Time.time;
+                }
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.T))
+        if (Input.GetKeyDown(KeyCode.Q))
         {
             StartParry();
         }
-        else if (Input.GetKeyUp(KeyCode.T))
+        else if (Input.GetKeyUp(KeyCode.Q))
         {
-            StopParry();
-        }
-
-        if (Input.GetKey(KeyCode.B))
-        {
-            if (!isBlocking)
-            {
-                StartBlocking();
-            }
-        }
-        else
-        {
-            if (isBlocking)
-            {
-                StopBlocking();
-            }
+            StopDefending();
         }
     }
 
     private void StartParry()
     {
-        if (isBlocking)
-        {
-            StopBlocking();
-        }
-        isParrying = true;
+        defensiveState = DefensiveState.Parrying;
         parryEndTime = Time.time + parryDuration;
+        animator.SetBool("isBlocking", false);
         animator.SetTrigger("parry");
         Debug.Log("Player started parrying!");
     }
 
-    private void StopParry()
+    private void TransitionToBlock()
     {
-        isParrying = false;
-        Debug.Log("Player stopped parrying!");
-    }
-
-    private void StartBlocking()
-    {
-        if (isParrying)
-        {
-            StopParry();
-        }
-        isBlocking = true;
+        defensiveState = DefensiveState.Blocking;
         animator.SetBool("isBlocking", true);
-        Debug.Log("Player started blocking!");
+        Debug.Log("Parry window expired — player is now blocking.");
     }
 
-    private void StopBlocking()
+    private void StopDefending()
     {
-        isBlocking = false;
+        defensiveState = DefensiveState.None;
         animator.SetBool("isBlocking", false);
-        Debug.Log("Player stopped blocking!");
+        Debug.Log("Player stopped defending.");
     }
 
     public bool IsParrying()
     {
-        return isParrying;
+        return defensiveState == DefensiveState.Parrying;
     }
 
-    private void ExecuteComboEffect(ComboSystem.DamageType damageType, int totalDamage)
+    public bool IsBlocking()
+    {
+        return defensiveState == DefensiveState.Blocking;
+    }
+
+    public void ApplyParryCounter(Transform attacker)
+    {
+        if (attacker == null) return;
+
+        EnemyScript enemyScript = attacker.GetComponent<EnemyScript>();
+        if (enemyScript != null)
+            enemyScript.TakeDamage(parryCounterDamage);
+
+        newBaseAIScript newAI = attacker.GetComponent<newBaseAIScript>();
+        if (newAI != null)
+            newAI.EnemyReceiveHit(parryCounterDamage);
+
+        DummyScript dummy = attacker.GetComponent<DummyScript>();
+        if (dummy != null)
+            dummy.EnemyReceiveHit(parryCounterDamage);
+
+        NavMeshAgent enemyAgent = attacker.GetComponent<NavMeshAgent>();
+        if (enemyAgent != null)
+        {
+            StartCoroutine(StaggerEnemy(enemyAgent, parryStaggerDuration));
+        }
+
+        Debug.Log($"Parry counter! Dealt {parryCounterDamage} damage and staggered {attacker.name} for {parryStaggerDuration}s.");
+    }
+
+    private IEnumerator StaggerEnemy(NavMeshAgent enemyAgent, float duration)
+    {
+        if (enemyAgent == null) yield break;
+        enemyAgent.isStopped = true;
+        yield return new WaitForSeconds(duration);
+        if (enemyAgent != null)
+            enemyAgent.isStopped = false;
+    }
+
+    private void ExecuteComboEffect(ComboSystem.DamageType damageType, int totalDamage, ComboSystem.StatusEffect statusEffect, GameObject? target)
     {
         if (comboExecutedDebug)
         {
-            Debug.Log($"Combo executed: {damageType}, total damage: {totalDamage}");
+            Debug.Log($"Combo executed: {damageType}, total damage: {totalDamage}, status effect: {statusEffect}, target: {target?.name ?? "None"}");
         }
-        ApplyAttackDamage(totalDamage, damageType == ComboSystem.DamageType.Slash ? lightAttackRange : heavyAttackRange);
+        float range = damageType == ComboSystem.DamageType.Slash ? lightAttackRange : heavyAttackRange;
+        Collider[] hitEnemies = Physics.OverlapSphere(transform.position + transform.forward, range, enemyLayers);
+        foreach (Collider enemy in hitEnemies)
+        {
+            EnemyScript enemyScript = enemy.GetComponent<EnemyScript>();
+            if (enemyScript != null)
+                enemyScript.TakeDamage(totalDamage);
+
+            newBaseAIScript newbaseAIScript = enemy.GetComponent<newBaseAIScript>();
+            if (newbaseAIScript != null)
+                newbaseAIScript.EnemyReceiveHit(totalDamage);
+
+            DummyScript dummyScript = enemy.GetComponent<DummyScript>();
+            if (dummyScript != null)
+                dummyScript.EnemyReceiveHit(totalDamage);
+
+            GameEvents.RaiseComboExecuted(damageType, totalDamage, statusEffect, enemy.gameObject);
+        }
     }
 
     private void ExecuteLightAttack()
@@ -183,6 +233,11 @@ public class CombatScript : MonoBehaviour
         }
     }
 
+public bool CheckIfEnemyHit(float range)
+    {
+        Collider[] hitEnemies = Physics.OverlapSphere(transform.position + transform.forward, range, enemyLayers);
+        return hitEnemies.Length > 0;
+    }
 
     private bool ApplyAttackDamage(int damage, float range)
     {
@@ -194,48 +249,64 @@ public class CombatScript : MonoBehaviour
                 EnemyScript enemyScript = enemy.GetComponent<EnemyScript>();
                 if (enemyScript != null)
                 {
-                    //enemyScript.TakeDamage(damage);
+                    enemyScript.TakeDamage(damage);
                 }                                                                   //added to check if new enemy AI works well with combat script
                 newBaseAIScript newbaseAIScript = enemy.GetComponent<newBaseAIScript>();
                 if (newbaseAIScript != null)
                 {
-                
                     newbaseAIScript.EnemyReceiveHit(damage);
-                    
                 }
-                ImmortalytyEnemy immortalytyEnemy = enemy.GetComponent<ImmortalytyEnemy>();
-                if(immortalytyEnemy != null)
+                DummyScript dummyScript = enemy.GetComponent<DummyScript>();
+                if (dummyScript != null)
                 {
-                    immortalytyEnemy.ImmortalTakeDamage();
+                    dummyScript.EnemyReceiveHit(damage);
                 }
             }
             return true;
         }
         return false;
     }
-    // TODO
-    // FIX BLOCK 
     public void TakeDamage(int damageAmount, Transform attacker)
     {
-        if (isParrying && attacker != null)
+        if (defensiveState == DefensiveState.Parrying && attacker != null)
         {
             Vector3 directionToAttacker = (attacker.position - transform.position).normalized;
             float dotProduct = Vector3.Dot(transform.forward, directionToAttacker);
             float distanceToAttacker = Vector3.Distance(transform.position, attacker.position);
+
             if (dotProduct > 0.5f && distanceToAttacker <= parryRange)
             {
-                Debug.Log("parry successful");
-                return; 
+                Debug.Log("Parry successful! (TakeDamage fallback)");
+                ApplyParryCounter(attacker);
+                return;
             }
         }
 
-        if (isBlocking)
+        if (defensiveState == DefensiveState.Blocking && attacker != null)
         {
+            Vector3 directionToAttacker = (attacker.position - transform.position).normalized;
+            float dotProduct = Vector3.Dot(transform.forward, directionToAttacker);
+            float angleToAttacker = Mathf.Acos(Mathf.Clamp(dotProduct, -1f, 1f)) * Mathf.Rad2Deg;
+
+            if (angleToAttacker <= blockAngle * 0.5f)
+            {
+                damageAmount = (int)(damageAmount * blockDamageMultiplier);
+                Debug.Log($"Block successful! Damage reduced to {damageAmount} (angle: {angleToAttacker:F1}°)");
+            }
+            else
+            {
+                Debug.Log($"Block failed — attacker at {angleToAttacker:F1}° (max {blockAngle * 0.5f}°). Full damage taken.");
+            }
+        }
+        else if (defensiveState == DefensiveState.Blocking && attacker == null)
+        {
+            // No attacker reference (e.g. trap) — block still reduces damage
             damageAmount = (int)(damageAmount * blockDamageMultiplier);
-            Debug.Log($"block successful, damage reduced to {damageAmount}");
+            Debug.Log($"Block successful (no direction). Damage reduced to {damageAmount}");
         }
 
         currentHealth -= damageAmount;
+        SpawnsDamagePopups.Instance.DamageDone(damageAmount, transform.position, false);
 
         if (currentHealth > 0)
         {
@@ -261,6 +332,7 @@ public class CombatScript : MonoBehaviour
         {
             currentHealth = maxHealth;
         }
+        SpawnsDamagePopups.Instance.HealingDone(healAmount, transform.position);
     }
 
     public IEnumerator HealOverTime(int healAmount, int times, float interval)
@@ -272,6 +344,7 @@ public class CombatScript : MonoBehaviour
             {
                 currentHealth = maxHealth;
             }
+            SpawnsDamagePopups.Instance.HealingDone(healAmount, transform.position);
             yield return new WaitForSeconds(interval);
         }
     }

@@ -8,7 +8,8 @@ TagManager:
   - Obstacle
   - heal
   - NPC
-  - immortalityObject
+  - Healthbar
+  - Wall
   layers:
   - Default
   - TransparentFX
