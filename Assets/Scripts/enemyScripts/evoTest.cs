@@ -4,57 +4,32 @@ public class evoTest : MonoBehaviour
 {
     private GameEvents events;
     private bool canChange = true;
+    [SerializeField] private bool isEvo;
+    [SerializeField] private bool isSkillChange;
+    [SerializeField] private bool isSkillActive;
     [SerializeField] private int evoIndex;
-    [SerializeField]private GameObject oldPlayerPref = null;
-    private Vector3 plPos;
+    [SerializeField] private SkillName skillname;
+
+
     void Start()
     {
         events = FindObjectOfType<GameEvents>();
-        FindParent();
+        
     }
     private void OnTriggerEnter(Collider collision)
     {
-        if (collision is BoxCollider && collision.CompareTag("Player") && canChange)
+        if (collision is BoxCollider && collision.CompareTag("Player") && canChange && isEvo)
         {
-            plPos = oldPlayerPref.transform.position;
-            events.EvolutionChange(evoIndex, plPos);
+            events.EvolutionChange(evoIndex);
+            canChange = false;
+        }
+        else if (collision is BoxCollider && collision.CompareTag("Player") && canChange && isSkillChange)
+        {
+            events.SkillChange(skillname, isSkillActive);
             canChange = false;
         }
 
 
     }
-    private void FindParent()
-    {
-        GameObject[] allPlayers = GameObject.FindGameObjectsWithTag("Player");
-
-        //looking for parent obj
-        foreach (GameObject obj in allPlayers)
-        {
-            Transform parent = obj.transform.parent;
-            bool hasPlayerParent = false;
-
-            while (parent != null)
-            {
-                if (parent.CompareTag("Player"))
-                {
-                    hasPlayerParent = true;
-                    break;
-                }
-                parent = parent.parent;
-            }
-
-            if (!hasPlayerParent)
-            {
-                oldPlayerPref = obj;
-                Debug.Log("Old Player found" + oldPlayerPref.name);
-                break;
-            }
-        }
-
-        if (oldPlayerPref == null)
-        {
-            Debug.LogError("Nie znaleziono głównego obiektu gracza!");
-            return;
-        }
-    }
+    
 }

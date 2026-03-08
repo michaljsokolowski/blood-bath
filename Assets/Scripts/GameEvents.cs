@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class GameEvents : MonoBehaviour
 {
-    public event System.Action<string> OnHealEnter;//event gdy wejdzie sie w healing orb
+    public event System.Action<string> OnHealEnter;// gdy wejdzie sie w healing orb
 
-    public event System.Action<Vector3> OnEnemyDeath;//enemy death event
+    public event System.Action<Vector3> OnEnemyDeath;// death event
     public event System.Action OnEnemyHit;//
-    public event System.Action<int, Vector3> OnEvolutionChange; // event do zmiany prefabu gracza podczas ewolucji
-    public event System.Action<string, bool> OnSkillChange; //event do wl i wyl umiejetnosci gracza
+    public event System.Action<int> OnEvolutionChange; //  do zmiany prefabu gracza podczas ewolucji
+    public event System.Action<SkillName, bool> OnSkillChange; // do wl i wyl umiejetnosci gracza
 
     public void HealEnter(string healType)
     {
@@ -27,11 +27,11 @@ public class GameEvents : MonoBehaviour
         OnEnemyHit.Invoke();
     }
 
-    public void EvolutionChange(int evolutionIndex, Vector3 evolutionPosition)
+    public void EvolutionChange(int evolutionIndex)//, Vector3 evolutionPosition
     {
-        OnEvolutionChange.Invoke(evolutionIndex, evolutionPosition);
+        OnEvolutionChange.Invoke(evolutionIndex);//, evolutionPosition
     }
-    public void SkillChange(string skillName, bool skillState)
+    public void SkillChange(SkillName skillName, bool skillState)
     {
         OnSkillChange.Invoke(skillName, skillState);
     }

@@ -2,27 +2,29 @@ using System.Collections;
 using System.Collections.Generic;
 using Cinemachine;
 using UnityEngine;
+
+
+public enum SkillName {FirePower, AcidPower, ShadowPower, Wings, Evade, Blocking, DamageTypes} //enum wszystkich skillow
 [System.Serializable]
 public class EvolutionSkills
 {
-    public string skillName;
-    public bool isSkillActive;
+    public SkillName skillName;
+    public bool isSkillActive; //czy aktywny
 }
 [System.Serializable]
 public class Evolution
 {
-    public int evolutionIndex;
-    public int cameraDistance;
-    public GameObject playerPrefab;
-    public List<EvolutionSkills> skills;
-    //camera pos?
+    public int evolutionIndex; //numer ewolucji mekka
+    public int cameraDistance; //ustawienie dystansu kamery od mekka, im wieksza ewolucja tym dalej
+    public List<EvolutionSkills> skills; //lista wszystkich skilli w evo
+
 }
 
 
 public class evolutionManager : MonoBehaviour
 {
-    public Evolution currentEvolution;
-    public List<Evolution> allEvolutions;
+    public Evolution currentEvolution; //do latwiejszego szukania
+    public List<Evolution> allEvolutions; //wszystkie dostepne evo
 
     private GameEvents events;
     private CinemachineFreeLook camComponent;
@@ -37,30 +39,35 @@ public class evolutionManager : MonoBehaviour
     private void OnEnable()
     {
         events.OnEvolutionChange += Evolve;
-        //events.OnSkillChange += ChangeSkillStatus;
+        events.OnSkillChange += ChangeSkills;
     }
     private void OnDisable()
     {
         events.OnEvolutionChange -= Evolve;
-        //events.OnSkillChange -= ChangeSkillStatus;
+        events.OnSkillChange -= ChangeSkills;
     }
-    private void Evolve(int index, Vector3 position)
+    private void Evolve(int index)
     {
         currentEvolution = allEvolutions[index];
-        ChangePlayerPrefab(position);
+        ChangePlayer();
     }
 
-    private void ChangePlayerPrefab(Vector3 position)
+    private void ChangePlayer()
     {
-        GameObject[] allPlayers = GameObject.FindGameObjectsWithTag("Player");
+        GameObject[] allPlayers = GameObject.FindGameObjectsWithTag("Player");//potrzebne bo kilka rzeczy ma tag
         FindPlayerParent(allPlayers);
-        Destroy(player);
-        GameObject newPlayerPref = Instantiate(currentEvolution.playerPrefab, position, Quaternion.identity);
-        ChangeCamera(newPlayerPref);
+
+        ChangePlayerLook(player);
+
+        //STARY POMYSŁ Z USUWANIEM PREFABÓW
+        //Destroy(player);      
+        //GameObject newPlayerPref = Instantiate(currentEvolution.playerPrefab, position, Quaternion.identity);
+
+        ChangeCamera(player);
 
         Debug.Log("New Player spawned");
     }
-    private void FindPlayerParent(GameObject[] objects)
+    private void FindPlayerParent(GameObject[] objects) //do wyszukania konkretnego obiektu z tagiem player
     {
             foreach (GameObject obj in objects)
         {
@@ -89,6 +96,10 @@ public class evolutionManager : MonoBehaviour
             return;
         }
     }
+    private void ChangePlayerLook(GameObject player)
+    {
+        Debug.Log("player looks diefferent ig");
+    }
     private void ChangeCamera(GameObject newPlayerPref)
     {
         GameObject camera = GameObject.FindGameObjectWithTag("Camera");
@@ -101,17 +112,64 @@ public class evolutionManager : MonoBehaviour
             camComponent.m_Lens.FieldOfView = currentEvolution.cameraDistance;
         }
     }
-    private void ChangeSkillStatus(string skillName, bool status)
+    private void ChangeSkills(SkillName searchedSkillName, bool skillState)
     {
-        //var skill = player.GetComponent(skillName);
-        //skill.enabled = status;
         for (int i = 0; i < currentEvolution.skills.Count; i++)
         {
-            if (currentEvolution.skills[i].skillName == skillName)
+            if (currentEvolution.skills[i].skillName == searchedSkillName)
             {
-                currentEvolution.skills[i].isSkillActive = status;
+
+                switch (searchedSkillName)
+                {
+                    case SkillName.FirePower:
+                        FirePower firePower = FindAnyObjectByType<FirePower>();
+                        if(firePower != null)
+                        {
+                            firePower.enabled = skillState;
+                            Debug.Log("skill changed");
+                        }
+                        else
+                        {
+                            Debug.Log("skill not changed");
+                        }
+                        currentEvolution.skills[i].isSkillActive = skillState;
+                        break;
+                    case SkillName.AcidPower:
+                        AcidPower acid = FindAnyObjectByType<AcidPower>();
+                        if(acid != null)
+                        {
+                            acid.enabled = skillState;
+                        }
+                        currentEvolution.skills[i].isSkillActive = skillState;
+                        break;
+                    case SkillName.ShadowPower:
+                        Debug.Log("not made");
+                        break;
+                    case SkillName.Wings:
+                        Debug.Log("not made");
+                        break;
+                    case SkillName.Evade:
+                        PlayerEvade evade = FindAnyObjectByType<PlayerEvade>();
+                        if(evade != null)
+                        {
+                            evade.enabled = skillState;
+                        }
+                        currentEvolution.skills[i].isSkillActive = skillState;
+                        break;
+                    case SkillName.Blocking:
+                        Debug.Log("not made");
+                        break;
+                    case SkillName.DamageTypes:
+                        Debug.Log("not made");
+                        break;
+                    default:
+                        Debug.Log("not made");
+                        break;
+                }
             }
-        }
+            
+        }      
+           
     }
 
 
