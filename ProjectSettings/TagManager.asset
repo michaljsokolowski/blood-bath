@@ -10,6 +10,7 @@ TagManager:
   - NPC
   - Healthbar
   - Wall
+  - SkillZone
   layers:
   - Default
   - TransparentFX
