@@ -60,6 +60,8 @@ public class CombatScript : MonoBehaviour
 
     public GameObject damageText;
 
+    public LayerMask ObstacleLayers;
+
     private void Start()
     {
         comboSystem = GetComponent<ComboSystem>();
@@ -209,12 +211,23 @@ public class CombatScript : MonoBehaviour
 
             GameEvents.RaiseComboExecuted(damageType, totalDamage, statusEffect, enemy.gameObject);
         }
+        
+        Collider[] hitObstacle = Physics.OverlapSphere(transform.position + transform.forward, range, ObstacleLayers);
+        foreach (Collider Obstacle in hitObstacle)
+        {
+            DestructElement destructElements = Obstacle.GetComponent<DestructElement>();
+            if (destructElements != null)
+            {
+                destructElements.DestructLogic(totalDamage);
+            }
+        }
     }
 
     private void ExecuteLightAttack()
     {
         comboSystem.RegisterAttack(ComboSystem.AttackType.Light);
         bool hitEnemy = ApplyAttackDamage((int)(lightAttackDamage * blood.DMGMulti), lightAttackRange);
+        bool hitObstacle = ApllyObstacleDamage((int)(lightAttackDamage * blood.DMGMulti), lightAttackRange);
         animator.SetTrigger("fast attack");
         if (lightAttackDebug)
         {
@@ -226,6 +239,7 @@ public class CombatScript : MonoBehaviour
     {
         comboSystem.RegisterAttack(ComboSystem.AttackType.Heavy);
         bool hitEnemy = ApplyAttackDamage((int)(heavyAttackDamage * blood.DMGMulti), heavyAttackRange);
+        bool hitObstacle = ApllyObstacleDamage((int)(heavyAttackDamage * blood.DMGMulti), heavyAttackRange);
         animator.SetTrigger("heavy attack");
         if (heavyAttackDebug)
         {
@@ -233,10 +247,15 @@ public class CombatScript : MonoBehaviour
         }
     }
 
-public bool CheckIfEnemyHit(float range)
+    public bool CheckIfEnemyHit(float range)
     {
         Collider[] hitEnemies = Physics.OverlapSphere(transform.position + transform.forward, range, enemyLayers);
         return hitEnemies.Length > 0;
+    }
+    public bool CheckIfObstacleHit(float range)
+    {
+        Collider[] hitObstacle = Physics.OverlapSphere(transform.position + transform.forward, range, ObstacleLayers);
+        return hitObstacle.Length > 0;
     }
 
     private bool ApplyAttackDamage(int damage, float range)
@@ -261,11 +280,37 @@ public bool CheckIfEnemyHit(float range)
                 {
                     dummyScript.EnemyReceiveHit(damage);
                 }
+                ImmortalytyEnemy immortalytyEnemy = enemy.GetComponent<ImmortalytyEnemy>();
+                if (immortalytyEnemy != null)
+                {
+                    immortalytyEnemy.ImmortalTakeDamage();
+                }
+              
+               
             }
             return true;
         }
         return false;
     }
+
+    private bool ApllyObstacleDamage(int damage, float range)
+    {
+        Collider[] hitObstacle = Physics.OverlapSphere(transform.position + transform.forward, range, ObstacleLayers);
+        if (hitObstacle.Length > 0)
+        {
+            foreach (Collider Obstacle in hitObstacle)
+            {
+                DestructElement destructElements = Obstacle.GetComponent<DestructElement>();
+                if (destructElements != null)
+                {
+                    destructElements.DestructLogic(damage);
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
     public void TakeDamage(int damageAmount, Transform attacker)
     {
         if (defensiveState == DefensiveState.Parrying && attacker != null)

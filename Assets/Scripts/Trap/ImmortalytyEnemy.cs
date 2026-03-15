@@ -9,16 +9,19 @@ public class ImmortalytyEnemy : MonoBehaviour
 
     private int maxHealth = 50;
     [SerializeField]
-    private int currentHealth;
+    private float currentHealth;
     const int minHealth = 0;
-    private CombatScript _combatScript;
-    private ComboSystem _combo;
     [SerializeField]
-    private bool isObjectOnScene = false;
+    private CombatScript _combatScript;
+    [SerializeField]
+    private ComboSystem _combo;
+    public bool isObjectOnScene = false;
     private FloatingHealthBar healthBar;
-
-    private int orginalLightDamage;
-    private int orginalHevyDamage;
+    [SerializeField]
+    private float orginalLightDamage;
+    [SerializeField]
+    private float orginalHevyDamage;
+    [SerializeField]
     private int originalComboDamage;
 
     Coroutine changeCombo;
@@ -56,6 +59,7 @@ public class ImmortalytyEnemy : MonoBehaviour
     {
         currentHealth -= orginalLightDamage;
         currentHealth -= orginalHevyDamage;
+
         ComboChange();
         StartCoroutine(ChangeComboDamage());
 
@@ -92,9 +96,13 @@ public class ImmortalytyEnemy : MonoBehaviour
                 foreach (var combo in _combo.combos)
                 {
                     combo.damage = 0;
+                    
                 }
+                
+
 
             }
+            
         }
 
        
@@ -115,6 +123,7 @@ public class ImmortalytyEnemy : MonoBehaviour
         foreach (var combo in _combo.combos)
         {
             combo.damage = 0;
+            
         }
     }
     IEnumerator ChangeComboDamage()

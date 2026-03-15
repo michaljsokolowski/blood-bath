@@ -86,6 +86,9 @@ public class newBaseAIScript : MonoBehaviour
     public FloatingHealthBar healthBar;
     protected bool isDead = false;
 
+    public ImmortalytyEnemy immortal;
+    public GameObject immortalEnemyCrystal;
+
     protected virtual void Start()
     {
         //agent = GetComponent<NavMeshAgent>();
@@ -96,6 +99,9 @@ public class newBaseAIScript : MonoBehaviour
         orbs = FindObjectOfType<orbSpawn>();
         healthBar.DoHealthBar(currentHealth, maxHealth);
         agent = GetComponent<NavMeshAgent>();
+
+        immortal = FindObjectOfType<ImmortalytyEnemy>();
+        immortalEnemyCrystal = GameObject.FindGameObjectWithTag("immortalityObject");
 
         GameEvents.OnComboExecuted += HandleComboExecuted;
     }
@@ -110,6 +116,23 @@ public class newBaseAIScript : MonoBehaviour
                                      ComboSystem.StatusEffect statusEffect, GameObject target)
     {
         if (target != this.gameObject) return;
+
+        if (immortal != null)
+        {
+            if (immortal.isObjectOnScene == true)
+            {
+                if (target == this.gameObject)
+                {
+                    statusEffect = ComboSystem.StatusEffect.Nullie;
+                }
+                if (target == immortalEnemyCrystal)
+                {
+                    statusEffect = ComboSystem.StatusEffect.Nullie;
+                }
+
+            }
+        }
+      
 
         if (statusEffect == ComboSystem.StatusEffect.Bleed)
         {

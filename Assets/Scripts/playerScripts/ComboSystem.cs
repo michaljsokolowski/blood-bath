@@ -33,7 +33,8 @@ public class ComboSystem : MonoBehaviour
     {
         Bleed,
         Stagger,
-        Pull
+        Pull,
+        Nullie
     }
 
     [Header("Combo Configurations")]
@@ -96,8 +97,12 @@ public class ComboSystem : MonoBehaviour
             }
             current_combo.Clear();
         }
-        // add attack to the chain
-        current_combo.Add(attackType);
+        else if (!CombatScript.CheckIfObstacleHit(range))
+        {
+            current_combo.Clear();
+        }
+            // add attack to the chain
+            current_combo.Add(attackType);
         last_attack_time = Time.time;
 
         if (noticeAttackDebug) {
