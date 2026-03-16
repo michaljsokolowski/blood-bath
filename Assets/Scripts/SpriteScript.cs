@@ -25,4 +25,4 @@ public class SpriteScript : MonoBehaviour
 
         transform.rotation = Quaternion.Euler(0f, yAngle, 0f);
     }
-}
+//komentarz, żeby zobaczyć czy vs code działa - karolinka tu była
