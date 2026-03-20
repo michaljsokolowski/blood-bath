@@ -20,17 +20,9 @@ public class AbilityScript : MonoBehaviour
 
     public void ActivateAbility()
     {
+
         
 
     }
-     private void OnTriggerEnter(Collider other)
-    {
-        if (other.gameObject.CompareTag("soldier"))
-        {
-            Debug.Log("Hit Enemy");
-        }
-        
-    }
-
 
 }

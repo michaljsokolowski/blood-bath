@@ -3,17 +3,34 @@ using System.Collections;
 
 public class Cone : MonoBehaviour
 {
+    public AttackVisual attackVisual;
+    public delegate void ConeHitAction(string text);
+    public event ConeHitAction OnAbilityUsed;
 
-    private void OnTriggerEnter(Collider other)
+    private void Start()
     {
-        if (other.gameObject.CompareTag("soldier"))
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+;
+    if (other.gameObject.CompareTag("soldier"))
         {
-            Debug.Log("Hit Enemy");
+            Collider[] hitEnemies = other.GetComponents<Collider>();
+            foreach (Collider enemy in hitEnemies)
+            {
+            GameEvents.RaiseAbilityUsed("Trafiony");
+            OnAbilityUsed?.Invoke("Trafiony");
+            }
         }
         
     }
 
-
-
-
+    void Update()
+{
+    if (Input.GetKeyDown(KeyCode.F))
+    {
+        attackVisual.StartCharge();
+    }
+}
 }

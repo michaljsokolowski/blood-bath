@@ -97,11 +97,13 @@ public class newBaseAIScript : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
 
         GameEvents.OnComboExecuted += HandleComboExecuted;
+        GameEvents.OnAbilityUsed += HandleAbilityUsed;
     }
 
     protected virtual void OnDestroy()
     {
         GameEvents.OnComboExecuted -= HandleComboExecuted;
+        GameEvents.OnAbilityUsed -= HandleAbilityUsed;
     }
 
     private void HandleComboExecuted(ComboSystem.DamageType damageType,
@@ -127,6 +129,16 @@ public class newBaseAIScript : MonoBehaviour
             if (activePullCoroutine != null)
                 StopCoroutine(activePullCoroutine);
             activePullCoroutine = StartCoroutine(PullRoutine());
+        }
+    }
+
+    private void HandleAbilityUsed(string text)
+    {
+        // Example: If the ability used is "Fireball", apply a burn effect
+        if (text == "Trafiony")
+        {
+            // Apply burn effect logic here
+            Debug.Log("yah.");
         }
     }
 
