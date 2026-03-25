@@ -3132,8 +3132,7 @@ Transform:
   m_LocalPosition: {x: -1.0776367, y: 2.62, z: 2.26}
   m_LocalScale: {x: 325.39313, y: 251.02763, z: 204.07301}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1914164964}
+  m_Children: []
   m_Father: {fileID: 1112724360}
   m_LocalEulerAnglesHint: {x: 180, y: 0, z: 0}
 --- !u!23 &996345547
@@ -3549,6 +3548,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hitZone: {fileID: 996345545}
+  abilityIndicator: {fileID: 1914164960}
+  attackVisual: {fileID: 0}
 --- !u!1 &1120100303
 GameObject:
   m_ObjectHideFlags: 0
@@ -5000,11 +5001,11 @@ GameObject:
   - component: {fileID: 1914164965}
   m_Layer: 0
   m_Name: AbilityIndicator
-  m_TagString: Untagged
+  m_TagString: AbilityVisual
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!64 &1914164961
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -5085,12 +5086,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1914164960}
   serializedVersion: 2
-  m_LocalRotation: {x: -1, y: -0, z: -0, w: 0}
-  m_LocalPosition: {x: 0.0016, y: 0.009361441, z: 0.0127}
-  m_LocalScale: {x: 0.0061464114, y: 0.00796725, z: 0.009800414}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.55700684, y: 0.27001953, z: -0.33154297}
+  m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 996345546}
+  m_Father: {fileID: 1112724360}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1914164965
 MonoBehaviour:
@@ -6052,6 +6053,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1972485424409493223, guid: 80f27504ebd1f5f878a91c0952b6df0f, type: 3}
       insertIndex: 0
       addedObject: {fileID: 996345546}
+    - targetCorrespondingSourceObject: {fileID: 1972485424409493223, guid: 80f27504ebd1f5f878a91c0952b6df0f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1914164964}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 2660411331544134768, guid: 80f27504ebd1f5f878a91c0952b6df0f, type: 3}
       insertIndex: -1

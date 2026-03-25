@@ -64,7 +64,7 @@ public class AttackVisual : MonoBehaviour
             if (fill >= 1f)
             {
                 _charging = false;
-                gameObject.SetActive(true);
+                gameObject.SetActive(false); // Hide after fully charged (or you could keep it visible for the attack duration)
             }
         }
     }
@@ -73,10 +73,15 @@ public class AttackVisual : MonoBehaviour
     public void StartCharge()
     {
         _chargeTimer = 0f;
-        _charging    = true;
+        //_charging    = true;
         if (_mat != null)
             _mat.SetFloat("_AttackCharge", 0f); // reset shader charge
         gameObject.SetActive(true);
+    }
+
+    public void ActivateAttack()
+    {
+        _charging = true;
     }
 
 }

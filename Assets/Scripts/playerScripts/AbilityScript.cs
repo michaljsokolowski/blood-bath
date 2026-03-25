@@ -7,19 +7,25 @@ public class AbilityScript : MonoBehaviour
 {
 
     public GameObject hitZone;
-    private AttackVisual attackVisual;
+    public GameObject abilityIndicator;
+    public AttackVisual attackVisual;
 
     private void Start()
     {
-        attackVisual = hitZone.GetComponentInChildren<AttackVisual>();
+        attackVisual = abilityIndicator.GetComponent<AttackVisual>();
     }
 
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.F))
         {
-            hitZone.SetActive(!hitZone.activeSelf);
             attackVisual.StartCharge();
+        }
+
+        if(Input.GetKeyDown(KeyCode.Mouse0))
+        {
+            hitZone.SetActive(!hitZone.activeSelf);
+            attackVisual.ActivateAttack();
         }
     }
 

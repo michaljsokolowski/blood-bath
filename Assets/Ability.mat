@@ -62,7 +62,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _AttackAngle: 60
-    - _AttackCharge: 0
+    - _AttackCharge: 1
     - _AttackRadius: 6
     - _BumpScale: 1
     - _ConeAngle: 60
