@@ -61,11 +61,11 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _AttackAngle: 20
+    - _AttackAngle: 60
     - _AttackCharge: 0
-    - _AttackRadius: 5
+    - _AttackRadius: 6
     - _BumpScale: 1
-    - _ConeAngle: 45
+    - _ConeAngle: 60
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0

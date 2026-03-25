@@ -5004,7 +5004,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!64 &1914164961
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -5105,8 +5105,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 1112724360}
-  attackRadius: 5
-  coneAngle: 45
+  attackRadius: 6
+  coneAngle: 60
   chargeDuration: 1
   _mat: {fileID: 2100000, guid: 4a0f0f37556bef847bd1ac4784f44d1f, type: 2}
 --- !u!1001 &1970146967

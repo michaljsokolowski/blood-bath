@@ -7,10 +7,11 @@ public class AbilityScript : MonoBehaviour
 {
 
     public GameObject hitZone;
+    private AttackVisual attackVisual;
 
-    
     private void Start()
     {
+        attackVisual = hitZone.GetComponentInChildren<AttackVisual>();
     }
 
     private void Update()
@@ -18,6 +19,7 @@ public class AbilityScript : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.F))
         {
             hitZone.SetActive(!hitZone.activeSelf);
+            attackVisual.StartCharge();
         }
     }
 

@@ -132,14 +132,12 @@ public class newBaseAIScript : MonoBehaviour
         }
     }
 
-    private void HandleAbilityUsed(string text)
+    private void HandleAbilityUsed(int totalDamage, GameObject target)
     {
         // Example: If the ability used is "Fireball", apply a burn effect
-        if (text == "Trafiony")
-        {
-            // Apply burn effect logic here
-            Debug.Log("yah.");
-        }
+        if (target != this.gameObject) return;
+
+        EnemyTakeDamage(totalDamage);
     }
 
     private IEnumerator BleedRoutine()

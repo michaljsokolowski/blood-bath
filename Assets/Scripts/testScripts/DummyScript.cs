@@ -52,9 +52,11 @@ public class DummyScript : MonoBehaviour
         }
     }
 
-    private void HandleAbilityUsed(string text)
+    private void HandleAbilityUsed(int totalDamage, GameObject target)
     {
-            Debug.Log("received ability used event");
+        if (target != this.gameObject) return;
+
+        EnemyTakeDamage(totalDamage);
     }
 
     private IEnumerator BleedRoutine()

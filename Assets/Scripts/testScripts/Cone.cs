@@ -16,12 +16,11 @@ public class Cone : MonoBehaviour
     {
         if (other.gameObject.CompareTag("soldier"))
         {
-            attackVisual.StartCharge();
             Collider[] hitEnemies = other.GetComponents<Collider>();
             foreach (Collider enemy in hitEnemies)
             {
-                GameEvents.RaiseAbilityUsed("Trafiony");
-                OnAbilityUsed?.Invoke("Trafiony");
+                GameEvents.RaiseAbilityUsed(20, enemy.gameObject);
+                //OnAbilityUsed?.Invoke(20, enemy.gameObject);
             }
         }
 
