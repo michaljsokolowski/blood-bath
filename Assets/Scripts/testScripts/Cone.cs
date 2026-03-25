@@ -16,6 +16,7 @@ public class Cone : MonoBehaviour
     {
         if (other.gameObject.CompareTag("soldier"))
         {
+            attackVisual.StartCharge();
             Collider[] hitEnemies = other.GetComponents<Collider>();
             foreach (Collider enemy in hitEnemies)
             {
@@ -28,9 +29,6 @@ public class Cone : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.F))
-        {
-            attackVisual.StartCharge();
-        }
+        
     }
 }
