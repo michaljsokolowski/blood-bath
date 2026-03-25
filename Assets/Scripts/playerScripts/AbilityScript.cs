@@ -15,13 +15,14 @@ public class AbilityScript : MonoBehaviour
 
     private void Update()
     {
-      
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            hitZone.SetActive(!hitZone.activeSelf);
+        }
     }
 
     public void ActivateAbility()
     {
-
-        
 
     }
 

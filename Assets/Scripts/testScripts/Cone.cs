@@ -4,6 +4,7 @@ using System.Collections;
 public class Cone : MonoBehaviour
 {
     public AttackVisual attackVisual;
+    public GameObject AbilityIndicator;
     public delegate void ConeHitAction(string text);
     public event ConeHitAction OnAbilityUsed;
 
@@ -11,26 +12,25 @@ public class Cone : MonoBehaviour
     {
     }
 
-    private void OnTriggerStay(Collider other)
+    private void OnTriggerEnter(Collider other)
     {
-;
-    if (other.gameObject.CompareTag("soldier"))
+        if (other.gameObject.CompareTag("soldier"))
         {
             Collider[] hitEnemies = other.GetComponents<Collider>();
             foreach (Collider enemy in hitEnemies)
             {
-            GameEvents.RaiseAbilityUsed("Trafiony");
-            OnAbilityUsed?.Invoke("Trafiony");
+                GameEvents.RaiseAbilityUsed("Trafiony");
+                OnAbilityUsed?.Invoke("Trafiony");
             }
         }
-        
+
     }
 
     void Update()
-{
-    if (Input.GetKeyDown(KeyCode.F))
     {
-        attackVisual.StartCharge();
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            attackVisual.StartCharge();
+        }
     }
-}
 }
