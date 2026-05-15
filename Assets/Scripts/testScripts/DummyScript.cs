@@ -28,11 +28,13 @@ public class DummyScript : MonoBehaviour
         healthBar.DoHealthBar(currentHealth, maxHealth);
 
         GameEvents.OnComboExecuted += HandleComboExecuted;
+        GameEvents.OnAbilityUsed += HandleAbilityUsed;  
     }
 
     void OnDestroy()
     {
         GameEvents.OnComboExecuted -= HandleComboExecuted;
+        GameEvents.OnAbilityUsed -= HandleAbilityUsed;
     }
 
     private void HandleComboExecuted(ComboSystem.DamageType damageType,
@@ -48,6 +50,13 @@ public class DummyScript : MonoBehaviour
 
             activeBleedCoroutine = StartCoroutine(BleedRoutine());
         }
+    }
+
+    private void HandleAbilityUsed(int totalDamage, GameObject target)
+    {
+        if (target != this.gameObject) return;
+
+        EnemyTakeDamage(totalDamage);
     }
 
     private IEnumerator BleedRoutine()

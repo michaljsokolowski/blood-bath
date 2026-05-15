@@ -1,23 +1,36 @@
 using System.Collections;
+using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
 public class AbilityScript : MonoBehaviour
 {
-    private void Update()
+
+    public GameObject hitZone;
+    public GameObject abilityIndicator;
+    public AttackVisual attackVisual;
+
+    private void Start()
     {
-         if (Input.GetKeyDown(KeyCode.E))
-        {
-            OnDrawGizmos();
-
-        }
-
+        attackVisual = abilityIndicator.GetComponent<AttackVisual>();
     }
 
-    protected virtual void OnDrawGizmos()
+    private void Update()
     {
-        Gizmos.color = new Color(255f, 164f, 41f, 0.8f);
-        Gizmos.DrawWireSphere(transform.position, 5f);
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            attackVisual.StartCharge();
+        }
+
+        if(Input.GetKeyDown(KeyCode.Mouse0))
+        {
+            hitZone.SetActive(!hitZone.activeSelf);
+            attackVisual.ActivateAttack();
+        }
+    }
+
+    public void ActivateAbility()
+    {
 
     }
 

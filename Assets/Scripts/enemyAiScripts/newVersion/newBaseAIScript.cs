@@ -104,11 +104,13 @@ public class newBaseAIScript : MonoBehaviour
         immortalEnemyCrystal = GameObject.FindGameObjectWithTag("immortalityObject");
 
         GameEvents.OnComboExecuted += HandleComboExecuted;
+        GameEvents.OnAbilityUsed += HandleAbilityUsed;
     }
 
     protected virtual void OnDestroy()
     {
         GameEvents.OnComboExecuted -= HandleComboExecuted;
+        GameEvents.OnAbilityUsed -= HandleAbilityUsed;
     }
 
     private void HandleComboExecuted(ComboSystem.DamageType damageType,
@@ -152,6 +154,14 @@ public class newBaseAIScript : MonoBehaviour
                 StopCoroutine(activePullCoroutine);
             activePullCoroutine = StartCoroutine(PullRoutine());
         }
+    }
+
+    private void HandleAbilityUsed(int totalDamage, GameObject target)
+    {
+        // Example: If the ability used is "Fireball", apply a burn effect
+        if (target != this.gameObject) return;
+
+        EnemyTakeDamage(totalDamage);
     }
 
     private IEnumerator BleedRoutine()
