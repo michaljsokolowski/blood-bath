@@ -38,6 +38,19 @@ public class TimeTrap : MonoBehaviour
         }
         StartCoroutine(resetTimer(10f));
     }
+
+    // do zrobienia corutyna by nie lecia³ damage co klatkê a co jakiœ czas
+    //public void OnTriggerStay(Collider other)
+    //{
+    //    if (other.CompareTag("Player") && other is BoxCollider)
+    //    {
+    //        var combat = other.GetComponent<CombatScript>();
+    //        if (timeTo <= 0)
+    //        {
+    //            combat.TakeDamage(trapDamage, null);
+    //        }
+    //    }   
+    //}
     private void Update()
     {
         displayTimer.text = timeTo.ToString("0");
