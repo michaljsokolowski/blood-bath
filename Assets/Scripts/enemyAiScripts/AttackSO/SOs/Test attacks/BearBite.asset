@@ -9,11 +9,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c413f1f9cdc78c048a4112821e6ad380, type: 3}
-  m_Name: Scratch 2
+  m_Script: {fileID: 11500000, guid: 1a05b3e29566df044adae5a1a58e0906, type: 3}
+  m_Name: BearBite
   m_EditorClassIdentifier: 
-  damage: 70
-  angle: 120
-  radius: 5
-  lungeDistance: 0
+  attackName: Bite
+  damage: 15
+  cooldown: 1
+  biteAngle: 50
+  biteRadius: 8
+  biteWaitDuration: 1
+  biteTriggerRange: 4
+  lungeDistance: 3
   lungeDuration: 0.1
+  indicatorColor: {r: 1, g: 0, b: 0, a: 1}

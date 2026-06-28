@@ -14,6 +14,12 @@ public class TimeTrap : MonoBehaviour
     [SerializeField]
     GameObject textObject;
 
+    [SerializeField]
+    float dmageInterval = 1f;
+    float nextDamageTime = 0f;
+
+    
+
     public int trapDamage = 10;
 
     private void Start()
@@ -39,18 +45,22 @@ public class TimeTrap : MonoBehaviour
         StartCoroutine(resetTimer(10f));
     }
 
-    // do zrobienia corutyna by nie lecia³ damage co klatkê a co jakiœ czas
-    //public void OnTriggerStay(Collider other)
-    //{
-    //    if (other.CompareTag("Player") && other is BoxCollider)
-    //    {
-    //        var combat = other.GetComponent<CombatScript>();
-    //        if (timeTo <= 0)
-    //        {
-    //            combat.TakeDamage(trapDamage, null);
-    //        }
-    //    }   
-    //}
+     //do zrobienia corutyna by nie lecia³ damage co klatkê a co jakiœ czas
+    public void OnTriggerStay(Collider other)
+    {
+        if (other.CompareTag("Player") && other is BoxCollider && Time.time >= nextDamageTime)
+        {
+            
+            var combat = other.GetComponent<CombatScript>();
+            if (timeTo <= 0)
+            {
+                  combat.TakeDamage(trapDamage, null);
+                
+                nextDamageTime = Time.time + dmageInterval;
+            }
+        }
+       
+    }
     private void Update()
     {
         displayTimer.text = timeTo.ToString("0");
@@ -91,5 +101,12 @@ public class TimeTrap : MonoBehaviour
 
         timeTo = 5;
         updateTime();
+    }
+    IEnumerator damagePerTick()
+    {
+        yield return new WaitForSeconds(1f);
+        
+        
+        
     }
 }
